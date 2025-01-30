@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
+import { PaginationDto } from 'src/common';
 
 @Controller('todo')
 export class TodoController {
@@ -13,13 +14,13 @@ export class TodoController {
   }
 
   @Get()
-  findAll() {
-    return this.todoService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.todoService.findAll(paginationDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todoService.findOne(+id);
+  @Get(':term')
+  findOne(@Param('term') term: string | number) {
+    return this.todoService.findOne(term);
   }
 
   @Patch(':id')
