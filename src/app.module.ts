@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { envs } from './config';
+import { TodoModule } from './todo/todo.module';
 
 @Module({
   imports: [
@@ -19,6 +20,8 @@ import { envs } from './config';
       autoLoadEntities: true,
       synchronize: true,
     }),
+
+    TodoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
