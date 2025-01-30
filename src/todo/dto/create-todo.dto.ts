@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 
 export class CreateTodoDto {
 
@@ -11,5 +11,9 @@ export class CreateTodoDto {
     @IsString()
     @IsOptional()
     description?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    completed?: boolean;
 
 }

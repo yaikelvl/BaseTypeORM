@@ -9,9 +9,9 @@ import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Todo } from './entities/todo.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common';
-import { isInt } from 'class-validator';
+import { IsInt, isInt, IsNumber } from 'class-validator';
 
 @Injectable()
 export class TodoService {
@@ -50,41 +50,49 @@ export class TodoService {
     };
 
     const { data, meta } = todo;
-    const todoDetails = data.map(
-      ({ id, title, description }) => ({
-        id,
-        title,
-        description,
-      }),
-    );
+    const todoDetails = data.map(({ id, title, description }) => ({
+      id,
+      title,
+      description,
+    }));
 
     return { todoDetails, meta };
   }
 
-  async findOne(term: number | string) {
-    let todo: Todo;
-    if (typeof term === 'number') {
-      todo = await this.todoRepository.findOneBy({ id:term });
-    } else if (typeof term === 'string') {
-      todo = await this.todoRepository.findOneBy({ title:term });      
-    }
-    
-    console.log({term});
-    if (!todo) throw new NotFoundException(`Todo ${term} not found`);
+  async findOne(term: string | number) {
+    let todo: Todo | null = null;
 
+    if (typeof term === 'number' || !isNaN(Number(term))) {
+      todo = await this.todoRepository.findOne({ where: { id: Number(term) } });
+    } else {
+      todo = await this.todoRepository.findOne({
+        where: { title: ILike(`%${term}%`) },
+      });
+    }
+    // ILike(term) es una función de TypeORM que permite hacer búsquedas insensibles a mayúsculas y minúsculas.
+
+    console.log({ term });
+    if (!todo) throw new NotFoundException(`Todo ${term} not found`);
     return todo;
   }
 
-  update(id: number, updateTodoDto: UpdateTodoDto) {
-    return `This action updates a #${id} todo`;
+  async update(id: number, updateTodoDto: UpdateTodoDto) {
+    await this.findOne(id);
+    const todo = await this.todoRepository.preload({
+      id,
+      ...updateTodoDto,
+    });
+    return await this.todoRepository.save(todo);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} todo`;
+  async remove(id: number) {
+    const todo = await this.findOne(id);
+    return await this.todoRepository.softRemove(todo);
   }
 
-  complete(id: number) {
-    return `This action complete a #${id} todo`;
+  async complete(id: number) {
+    await this.todoRepository.update(id, { completed: true });
+    return { message: 'Todo marked as complete' };
   }
 
   private handelExeption(error: any) {

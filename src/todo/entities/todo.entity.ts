@@ -2,6 +2,7 @@ import { date } from 'joi';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -26,4 +27,7 @@ export class Todo {
 
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
+
+  @DeleteDateColumn() // Agrega esta línea para soportar soft delete
+  deletedAt?: Date;
 }
