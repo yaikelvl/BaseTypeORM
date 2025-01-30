@@ -5,13 +5,13 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ILike, Repository } from 'typeorm';
+
+import { Todo } from './entities/todo.entity';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Todo } from './entities/todo.entity';
-import { ILike, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common';
-import { IsInt, isInt, IsNumber } from 'class-validator';
 
 @Injectable()
 export class TodoService {
@@ -21,6 +21,8 @@ export class TodoService {
     @InjectRepository(Todo)
     private readonly todoRepository: Repository<Todo>,
   ) {}
+
+  
   async create(createTodoDto: CreateTodoDto) {
     try {
       const todo = this.todoRepository.create(createTodoDto);
@@ -91,8 +93,10 @@ export class TodoService {
   }
 
   async complete(id: number) {
+    await this.findOne(id);
     await this.todoRepository.update(id, { completed: true });
-    return { message: 'Todo marked as complete' };
+    await this.remove(id);
+    return { message: 'TODO marked as complete' };
   }
 
   private handelExeption(error: any) {
