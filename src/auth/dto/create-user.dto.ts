@@ -9,7 +9,6 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { UserRole } from '../enum/roles.enum';
 
 export class CreateUserDto {
   @IsString()
@@ -24,6 +23,6 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsArray()
-  @IsEnum(UserRole, { each: true })
-  role?: UserRole[];
+  @IsString({ each: true })
+  role?: string[];
 }
