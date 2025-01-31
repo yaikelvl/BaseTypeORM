@@ -1,4 +1,6 @@
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -15,7 +17,7 @@ export class User {
   @Column('text', { unique: true, nullable: false })
   email: string;
 
-  @Column('text', { nullable: false })
+  @Column('text', { nullable: false , select: false})
   password: string;
 
   @Column({
@@ -34,4 +36,14 @@ export class User {
 
   @Column('boolean', { default: true })
   isActive: boolean;
+
+  @BeforeInsert()
+  checkEmailBeforeInsert(){
+    this.email = this.email.toLowerCase().trim();
+  }
+
+  @BeforeUpdate()
+  checkEmailBeforeUpdate(){
+    this.checkEmailBeforeInsert();
+  }
 }
