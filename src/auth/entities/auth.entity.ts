@@ -39,6 +39,7 @@ export class User {
   @BeforeInsert()
   checkEmailBeforeInsert(){
     this.email = this.email.toLowerCase().trim();
+    this.role = this.role.map(role => role.toUpperCase().trim());
   }
 
   @BeforeUpdate()
